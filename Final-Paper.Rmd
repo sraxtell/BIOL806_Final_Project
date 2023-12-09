@@ -1,0 +1,377 @@
+---
+title: "BIOL806: Final Paper"
+author: "Sidney Axtell"
+date: "2023-12-03"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+setwd("/Users/sidneyreel/UNH/BIOL806/Final Paper")
+library(dplyr)
+library(knitr)
+library(ggplot2)
+library(lubridate)
+library(leaflet)
+library(pandoc)
+library(tinytex)
+library(latex2exp)
+
+tags <- read.csv("/Users/sidneyreel/UNH/BIOL806/Final Paper/tags.csv")
+receivers <- read.csv("/Users/sidneyreel/UNH/BIOL806/Final Paper/receivers.csv")
+
+all_detections <- read.csv("/Users/sidneyreel/Documents/UNH/Cod Project/Data Viz/all_detections.csv")
+Date <- as.Date(all_detections$Date_Time_UTC, format = "%m/%d/%Y %H:%M")
+all_detections$Date <- format(Date, "%m-%d-%y")
+Time_UTC <- as.POSIXct(all_detections$Date_Time_UTC, format = "%m/%d/%Y %H:%M")
+all_detections$Time_UTC <- format(Time_UTC, "%H:%M")
+
+ME <- read.csv("/Users/sidneyreel/UNH/BIOL806/Final Paper/ME_detections.csv")
+
+average_temp_per_receiver <- read.csv("/Users/sidneyreel/UNH/BIOL806/Final Paper/average_temp_per_receiver.csv")
+average_temp_per_receiver$Date <- as.Date(average_temp_per_receiver$Date, format = "%Y-%m-%d")
+
+mean_temps <- read.csv("/Users/sidneyreel/UNH/BIOL806/Final Paper/mean_ME_receiver_temp.csv")
+
+ME_receiver_temp <- read.csv("/Users/sidneyreel/UNH/BIOL806/Final Paper/ME_receiver_temp.csv")
+ME$Transmitter <- as.factor(ME$Transmitter)
+ME$date <- as.Date(ME$date)
+
+All_Location_TL_Mass <- read.csv("/Users/sidneyreel/UNH/Cod Project/MBON report/All_Location_TL_Mass.csv")
+All_Location_TL_Mass <- na.omit(All_Location_TL_Mass)
+
+unique_tag_serial_no <- read.csv("/Users/sidneyreel/UNH/BIOL806/Final Paper/unique_tag_serial_no.csv")
+
+ME_sampling <- read.csv("/Users/sidneyreel/UNH/BIOL806/Final Paper/ME_sampling.csv")
+
+```
+
+```{r}
+
+```
+
+# Describing Atlantic cod movements, morphology and local environment in the Gulf of Maine 
+
+
+## Abstract
+
+Atlantic cod are a culturally and historically important species in New England. Due to overfishing, Atlantic cod populations are a fraction of historic numbers. Understanding their diets and movements as they relate to environmental conditions and the ecology of the Gulf of Maine more broadly will be crucial for managing this iconic species. 
+
+
+
+# INTRODUCTION
+
+
+Once the fourth largest export commodity from the American colonies, Atlantic cod (*Gadus morhua*) populations have declined from historic numbers after facing centuries-long pressures from overfishing (Alexander et al. 2009). Though the species has remained culturally important to New England, management efforts such as the 1996 Sustainable Fisheries Act, which included a requirement to rebuild overfished stocks, have not been widely successful in the Gulf of Maine. Though overfishing is no longer the primary threat to Atlantic cod in the Gulf of Maine, cod face myriad challenges to recovery. Cod are sensitive to high water temperatures (Bjornsson et al. 2007; Righton et al., 2010; Freitas et al. 2015), which are becoming more frequent under climate change (Pershing et al. 2021). The Gulf of Maine ecosystem is highly impacted by historic anthropogenic disturbance (Alexander et al. 2009), including to the food web (Willis et al. 2013). For example, river herring are thought to have been important prey items for Atlantic cod, providing seasonal aggregations of energy-rich prey (Willis et al. 2017). However, river herring numbers have been decimated by river dams. Knowing the movements, diets and environmental conditions of Atlantic cod in the Gulf of Maine might help scientists and fisheries managers to understand barriers to Atlantic cod recovery.    
+
+
+This study is designed to explore preliminary data from a much larger study investigating the movement ecology, diets, genetics, and acoustic telemetry of Atlantic cod sampled at two array sites (Maine and New Hampshire) as potential metrics of biodiversity for the greater Gulf of Maine ecosystem. The objectives of this paper are to begin to tackle some aspects of the larger project. Specifically:
+
+(1) Examine morphological differences between Atlantic cod sampled in Maine and New Hampshire arrays;
+(2) Track water temperature trends recorded on receivers deployed at depth;
+(3) Investigate movement of Atlantic cod sampled in the Maine array.
+
+
+
+## METHODS
+
+Note on data: *The data used in this study are preliminary. VR2AR receivers were collected and offloaded mid-season (14 Sept. 2023) due to forecasts that hurricane Lee would hit near our receiver arrays. Receivers were re-deployed 28 September 2023. Thus, data analysis and discussion in this paper does not reflect an entire season of data collection.* 
+
+**Study Site.** This telemetry study on Atlantic cod (*Gadus morhua*) was conducted in the Gulf of Maine off the coasts of New Hampshire and Maine. Two arrays of 12 receivers each (Innovasea VR2ARs) were deployed in a grid pattern roughly 6 km by 9 km with receivers approximately 3 km apart from one another. The New Hampshire array is located around the Isles of Shoals near New Castle, NH. The Maine array is located on West Cod Ledge in Casco Bay, near Portland, ME. *Note: Receiver ME08 in the Maine Array is excluded as it was not recovered and offloaded on 9/14/23.* 
+
+**Data Collection.** During the summer of 2023, Atlantic cod were targeted (jigging with hook and line) near or within bounds of the two study sites (ME and NH). Once an Atlantic cod was caught and assessed to be in good condition (no barotrauma or potentially lethal injuries), it was tagged. Tags used were Innovasea V9, V13 and V16 acoustic tags. Size of tag selected depended on the mass of the cod. Tagging protocol included surgical implantation of acoustic tag. Cod were anesthetized, then measurements of total length (mm), standard length (mm), mass (kg), a fin clip for stable isotope analysis and genetics, and a photo were taken. Cod were then placed in a surgical sling with chilled, oxygenated saltwater recirculating over their gills. An incision was made slightly lateral to the ventral mid-line as small as possible such that the tag was able to pass through. The acoustic tag was then positioned in the abdominal cavity, and 2-4 sutures were used to close the incision. Cod were then placed in a chilled, oxygenated recovery tank until equilibrium returned. Cod were returned to the water upon recovery using a descending device (brand: SeaQualizer). Acoustic data is collected when tagged cod pass within range of a VR2AR receiver. The unique tag ID of the cod tag (the "transmitter") is then picked up and logged by the receiver. With this technique, it is possible to observe individual cod movements within the two arrays. Additionally, each receiver logs internal data, such as temperature, depth and tilt. These receivers are deployed at depths where cod are expected to inhabit. Thus, temperature is especially important, as cod sensitive to temperature change.
+
+**Analysis.** Multiple raw data files were produced, including all detections, receiver metadata, tag metadata, and biological collection data. Data sets were cleaned individually and joined by receiver or transmitter (tag) ID where appropriate, and subset as necessary for analysis. For receivers, mean daily temperature was calculated and plotted. A linear model was fitted to look at whether there was a statistically significant difference between receivers logged average temperature. For captured Atlantic cod, total length (TL, mm) and mass (kg) was measured. Average total length and mass at each site was calculated and plotted. An Analysis of Variance (ANOVA) model was fitted to investigate whether there was a statistically significant difference between the two study sites (ME and NH). Lastly, movement data of cod (Maine array only) were visualized.    
+
+
+## RESULTS
+
+**Atlantic Cod Morphological Measurements: Length & Mass**
+
+```{r, echo=FALSE}
+#morphological data
+All_Location_TL_Mass <- na.omit(All_Location_TL_Mass)
+
+TL_array_comp <- ggplot(All_Location_TL_Mass, aes(x = Location, y = TL_mm, color = Location)) +
+  geom_boxplot() +
+  labs(title = "Comparison of Cod Length between Receiver Arrays", y = "Total Length (mm)") +
+  theme_bw()+
+  theme(plot.title = element_text(face = "bold"))
+
+mass_array_comp <- ggplot(All_Location_TL_Mass, aes(x = Location, y = Mass_kg, color = Location)) +
+  geom_boxplot() +
+  labs(title = "Comparison of Cod Mass between Receiver Arrays", 
+       y = "Mass (kg)") +
+  theme_bw() +
+  theme(plot.title = element_text(face = "bold"))
+
+ME_TL_Mass <- All_Location_TL_Mass |>
+  filter(Location == "ME")
+#count(ME_TL_Mass)#58
+
+av_TL <- mean(ME_TL_Mass$TL_mm)
+ #467.86mm
+
+av_Mass <- mean(ME_TL_Mass$Mass_kg)
+ #1.315kg
+
+
+NH_TL_Mass <- All_Location_TL_Mass |>
+  filter(Location == "NH")
+#count(NH_TL_Mass)#67
+
+av_TL_NH <- mean(NH_TL_Mass$TL_mm)
+ #426mm
+
+
+av_Mass_NH <- mean(NH_TL_Mass$Mass_kg)
+ #1.019kg
+
+print(TL_array_comp)
+
+#ggsave("TL_array_comp.png", plot = TL_array_comp, width = 6, height = 4, dpi = 300)
+#ggsave("mass_array_comp.png", plot = mass_array_comp, width = 6, height = 4, dpi = 300)
+```
+
+**Figure 1.** Total length (mm) comparison of sampled Atlantic cod between two study sites (ME, n = 58; and NH, n = 67).
+
+
+
+
+```{r, echo=FALSE}
+print(mass_array_comp)
+```
+
+**Figure 2.** Mass (kg) comparison of sampled Atlantic cod between two study sites (ME, n = 58; and NH, n = 67).
+
+
+The mean total length (TL, mm) of Atlantic cod sampled in New Hampshire was 426 (n = 67). Mean total length of cod sampled in Maine was 467.86 mm (n = 58). Running an ANOVA to test whether the difference in mean total length between the two study sites (ME and NH) was significantly significant showed a significant difference in mean between study sites (p-value = 0.0374). On average, Atlantic cod from Maine had a greater measured total length. The mean mass in NH was 1.02 kg and 1.32 in ME. The difference in mean mass between study sites was not statistically significant (ANOVA, p-value = 0.0629).   
+
+
+```{r, echo=FALSE, include=FALSE}
+#ANOVA TL
+anova_TL <- aov(TL_mm ~ Location, data = All_Location_TL_Mass)
+summary(anova_TL)
+```
+
+```{r, echo=FALSE, include=FALSE}
+#ANOVA Mass
+anova_Mass <- aov(Mass_kg ~ Location, data = All_Location_TL_Mass)
+summary(anova_Mass)
+```
+
+Figure 3 looks more closely at the Atlantic cod sampled in Maine. Mass and total length were plotted against one another, and a linear curve was fit to the data. This model was a fairly good fit, showing that total length was a significant predictor of mass (p-value < 0.001). \(R^2 = 0.8843\), meaning that in this fitted linear model, approximately 88.43% of the variance in measured cod mass is explained by cod length. This suggests a relatively good fit (high correlation) between Atlantic cod length and mass. The spread of the data is also encouraging. For a well-rounded study, my intent was to collect data from a range of sizes of Atlantic cod. However, I have no control over what sizes of cod were caught during sampling. Fig. 1 indicates there does appear to be a range of sizes caught. Also encouraging is that the tagged ME cod picked up by the ME receiver array (n = 20, magenta points on Fig. 1) also appear to span a range of representative sizes, hopefully eventually leading to results that can be extrapolated to a wider population.     
+
+```{r, echo=FALSE}
+ME_TL_Mass <- All_Location_TL_Mass |>
+  filter(Location == "ME")
+
+unique_tag_serial_no <- mutate(unique_tag_serial_no, tag_serial_no = as.character(tag_serial_no))
+
+unique_ME_tags <- left_join(unique_tag_serial_no, ME_sampling, by = c("tag_serial_no" = "Tag_serial"))
+
+unique_ME_tags <- unique_ME_tags |>
+  select(Fish_ID, tag_serial_no, Location, Date, TL_mm, SL_mm, Mass_kg)
+
+ME_Length_Mass_scatter_lm <- ggplot(ME_TL_Mass, aes(x = TL_mm, y = Mass_kg)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.5) +
+  labs(title = "Comparison of Cod Length & Mass (ME Array)", y = "Mass (kg)", x = "Total Length (mm)") +
+  theme_bw()+
+  theme(plot.title = element_text(face = "bold"))
+
+  ME_Length_Mass_scatter_lm <- ME_Length_Mass_scatter_lm +
+  geom_point(data = unique_ME_tags, aes(x = TL_mm, y = Mass_kg), color = "magenta", alpha=0.5)
+
+# Display the updated scatter plot
+print(ME_Length_Mass_scatter_lm)
+
+```
+
+**Figure 3.** Total length (mm) plotted against mass (kg) of all Atlantic cod sampled at study site in Casco Bay, ME (n = 58). Magenta points represent Atlantic cod that received an acoustic tag that was later picked up by receivers in the Maine receiver array (n = 20).
+
+
+```{r, echo=FALSE, include=FALSE}
+lm_ME_TL_Mass <- lm(Mass_kg ~ TL_mm, data = ME_TL_Mass)
+summary(lm_ME_TL_Mass)
+```
+
+
+
+**Temperature.**
+```{r, echo=FALSE}
+ggplot(average_temp_per_receiver, aes(x = Date, y = Temp_C, group = Site, color = as.factor(Site))) +
+  geom_line() +
+  labs(title = "Average Daily Temperatures for Receivers (ME Array)", x = "Date", y = "Average Daily Temperature (°C)") +
+  scale_color_discrete(name = "Site") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") +
+  geom_abline(intercept = 15, slope = 0, color = "red", linetype = "dashed") +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+**Figure 4.** Average temperature recorded by VR2AR receivers in Maine array, July - mid-September 2023. Average temperature increased over time. Each color represents a unique receiver. Red dashed line represents 15\textdegree{}C, the upper limit of thermal tolerance for Atlantic cod.   
+
+
+
+
+
+As mentioned previously, ocean temperature is an important consideration for fish health, potentially adversely affecting consumption, respiration, and reproduction. Temperature was measured and logged by each receiver throughout deployment at the depth of each receiver. Average temperature was plotted by receiver and visualized in Fig. 4. Average temperature increased over the time period of the study (July to mid-September). Receiver 10 (ME10, purple line) recorded an especially high average temperature, approaching the 15\textdegree{}C temperature threshold, at which point Atlantic cod tend to begin to experience functional impairment (including adverse impacts to consumption and respiration). Though average temperature did not exceed 15\textdegree{}C on any receiver in the Maine array, individual measurements throughout the season did exceed 15\textdegree{}C (Fig. 5). 
+
+
+```{r, echo=FALSE}
+
+boxplot_ME_receiver_temps <- ggplot(ME_receiver_temp, aes(x = factor(Site), y = Temp_C)) +
+  geom_boxplot() +
+  labs(title = "ME Array Average Bottom Temp Jul-Sept", x = "Site", y = "Temperature (degrees C)") +
+  theme_bw() +
+  theme(plot.title = element_text(face = "bold"))
+
+boxplot_ME_receiver_temps +
+  geom_point(data = subset(ME_receiver_temp, Temp_C > 15), aes(color = "Above 15°C"), size = 1, alpha = 0.4, position = position_jitter(width = 0.2)) +
+  scale_color_manual(name = "Temperature (°C)", values = c("Above 15°C" = "red"))+
+  labs(title = "Average Temperature in ME Array (Jul-Sept)", x = "Receiver Sites", y = "Temperature (°C)")
+
+```
+
+**Figure 5.** Average temperature by receiver in the Maine array. Red points represent measurements above 15\textdegree{}C, the upper range of thermal tolerance for Atlantic cod. 
+
+
+**Atlantic Cod movements in Casco Bay, ME Array**
+
+```{r, echo=FALSE, include = FALSE}
+#Bubble plot... not working. Needs further work.
+
+detections_tags <- left_join(tags, all_detections, by = c("Transmitter" = "Transmitter"))
+detections_receivers <- left_join(receivers, detections_tags, by = c("Serial_No" = "Receiver"))
+detections_receivers <- na.omit(detections_receivers)
+subset_all_detections <- detections_receivers |>
+  filter(Location == "ME")
+
+# Convert the date column to Date object using lubridate
+subset_all_detections <- subset_all_detections |>
+  mutate(date = mdy(Date))
+
+# Add a new column 'month' extracting the month from the 'date' column
+subset_all_detections <- subset_all_detections |>
+  mutate(num_month = month(date))
+
+# Add a new column 'written_month' with written month names
+subset_all_detections <- subset_all_detections |>
+  mutate(Month = month.abb[num_month])
+
+subset_all_detections <- subset_all_detections |>
+  mutate(Month = toupper(Month))
+
+names(subset_all_detections)[names(subset_all_detections) == "Serial_no"] <- "tag_serial_no"
+
+ME_detections <- subset_all_detections
+subset_ME_detections <- ME_detections |>
+  select(Receiver_ID, Serial_No, Location, tag_serial_no, Transmitter, date, Time_UTC, Month)
+
+# Convert Month column to factor (if it's character)
+subset_ME_detections$Month <- factor(subset_ME_detections$Month, levels = month.abb)
+
+subset_ME_detections <- na.omit(subset_ME_detections)
+agg_ME_detections <- subset_ME_detections |>
+  group_by(Receiver_ID, Month) |>
+  summarise(Total_NonNumeric = sum(!is.na(Transmitter)), .groups = "drop") |>
+  ungroup()
+
+names(agg_ME_detections)[names(agg_ME_detections) == "Total_NonNumeric"] <- "tag_detections"
+
+
+#agg tag detections 
+agg_ME_tag_detections <- subset_ME_detections |>
+  group_by(Transmitter, Month) |>
+  summarise(Total_NonNumeric = sum(!is.na(Transmitter)), .groups = "drop") |>
+  ungroup()
+
+agg_det <- subset_ME_detections |>
+  group_by(Receiver_ID, Month) |>
+  summarise(Unique_Transmitters = n_distinct(Transmitter), .groups = "drop") |>
+  ungroup()
+
+names(agg_ME_tag_detections)[names(agg_ME_tag_detections) == "Total_NonNumeric"] <- "detections"
+agg_ME_detections$Month <- factor(agg_ME_detections$Month, levels = c("JUL", "AUG", "SEP"))
+
+ggplot(agg_ME_detections, aes(x = Month, y = tag_detections, size = tag_detections, color = Receiver_ID, label = tag_detections)) +
+  geom_point(alpha = 0.7) +
+  geom_text(size = 3, vjust = 1, color = "black") +  # Add labels
+  scale_size(range = c(3, 15)) +  # Adjust bubble size range
+  labs(title = "Tagged Atlantic Cod Detections in ME", x = "Month", y = "Tag Detections", color = "Receiver ID") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_cartesian(ylim = c(0, 38000)) +
+  guides(size = FALSE)
+
+```
+
+
+
+
+```{r, echo=FALSE}
+#abacus plot
+ggplot(ME, aes(x = date, y = Transmitter, color = Receiver_ID)) +
+  geom_point() +
+  theme_bw() +
+  labs(title = "Atlantic Cod Movements in Casco Bay, ME", 
+       x = "Date", y = "Tag ID", color = "Receiver ID") +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+**Figure 6.** Abacus plot showing presence of tagged Atlantic cod at receivers within the Maine array. 20 tagged cod were detected on four of the 12 receivers within the array (ME02, ME04, ME05, and ME09). Each dot represents a daily detection of a tag ID (a tagged Atlantic cod) on a given receiver. Detections are color-coded by receiver.
+
+
+
+## DISCUSSION
+
+Investigating these data to address the objectives of this study yielded several interesting findings. Looking at morphological differences in Atlantic cod sampled from the Maine and New Hampshire arrays, this study found no significant difference in mass between the two study sites. There was, however, a statistically significant difference in length. This warrants further study, as it brings up interesting questions around bioenergetics. If cod have, on average, a greater total length in the Gulf of Maine but do not have a higher mass, what does that mean about their life histories? Cod are known to undergo otogenetic shifts in their diets due to size, as well as prey switch based on prey availability. Nutrient density of prey is important for informing growth, so understanding what Atlantic cod from the Maine array cod versus cod from the New Hampshire array are consuming might help us understand more about the observed statistically significant difference in length between study sites. It might also help us understand the observed lack of difference in mass. The larger project that these data come from include stomach contents collected from a subset of these cod, so integrating diet information with morphological data is a next step in this study. 
+
+Another factor influencing Atlantic cod consumption and growth is environmental temperature. As ectotherms, function (including consumption and growth) in fish is closely tied to the ambient water temperature. The temperature data collected from the receivers deployed in Maine showed an increase in average temperature over time (Fig. 4). Temperature measurements were taken near the seafloor (2 meters above seafloor), relevant because as benthic-adapted feeders, cod are observed to spend the bulk of their time in this zone. Higher temperatures can increase metabolic processes, leading to faster growth. However, if environmental conditions are poor (i.e., low prey availability or dissolved oxygen), fish might be unable to meet increased metabolic demands (Luongo et al. 2023). This is a concern of rising temperatures related to climate change. 
+
+Tank studies for cod indicate a thermal preference of 3 to 15\textdegree{}C, with optimal growth occurring in the 9-15\textdegree{}C range (Bjornsson et al. 2007). Above 15\textdegree{}C, cod are observed to change their behavior, actively seeking cooler water (Freitas et al. 2015). 20\textdegree{}C is associated with low growth and high mortality (Bjornsson et al. 2007). However, some studies indicate cod have a thermal niche closer to 12\textdegree{}C (Righton et al., 2010). Though average temperature didn't reach 15\textdegree{}C, individual measurements at receiver station ME10 were above 15\textdegree{}C. This means Atlantic cod behavior near ME10 could have been impacted. Investigating cod movement in relation to temperature is a potential future direction of this study. Other fish are also impacted by temperature change in the environment, so looking at diet in relation to temperature will also be important. With climate change predicted to increase ocean temperatures in the Gulf of Maine, it is important to understand the role of temperature in the ecology of Atlantic cod. 
+
+Finally, the movements of 20 Atlantic cod tagged with acoustic tags were investigated in this study (Fig. 6). Interestingly, though Atlantic cod sampled were caught, tagged and released throughout the study area, they were detected on only four out of 12 receivers (ME02, ME04, ME05, ME09). Of those four, the bulk of the detections occurred on two receivers (ME02, ME05). Of the 20 cod detected, a high degree of site fidelity was observed. Only two tagged cod (#14882 and #14879) spent time at more than one receiver, and even then, the time spent away from their 'home' receiver was very short (1-2 days). Further investigation should be done to investigate why cod sampled in the Maine array might only be utilizing certain portions of the array. Morphology (especially size), has previously been shown to have a role in movement (Monk et al. 2023) as well as different tolerance to changing environmental conditions (Freitas et al. 2015). Next steps with this project will include integrating environmental, diet, and morphological data with movement of tagged Atlantic cod. The preliminary findings of this study will be further investigated using the data set of the entire 2023 field season. 
+
+
+
+
+
+
+## References
+
+
+Alexander, K. E., Leavenworth, W. B., Cournane, J., Cooper, A. B., Claesson, S., Brennan, S., Smith, G., Rains, L., Magness, K., Dunn, R., Law, T. K., Gee, R., Jeffrey Bolster, W., & Rosenberg, A. A. (2009). Gulf of Maine cod in 1861: Historical analysis of fishery logbooks, with ecosystem implications. Fish and Fisheries, 10(4), 428–449. https://doi.org/10.1111/j.1467-2979.2009.00334.x
+
+
+Björnsson, B., Steinarsson, A., & Árnason, T. (2007). Growth model for Atlantic cod (Gadus morhua): Effects of temperature and body weight on growth rate. Aquaculture, 271(1), 216–226. https://doi.org/10.1016/j.aquaculture.2007.06.026
+
+
+Freitas, C., Olsen, E. M., Moland, E., Ciannelli, L., & Knutsen, H. (2015). Behavioral responses of Atlantic cod to sea temperature changes. Ecology and Evolution, 5(10), 2070–2083. https://doi.org/10.1002/ece3.1496
+
+
+Monk, C. T., Power, M., Freitas, C., Harrison, P. M., Heupel, M., Kuparinen, A., Moland, E., Simpfendorfer, C., Villegas‐Ríos, D., & Olsen, E. M. (2023). Atlantic cod individual spatial behaviour and stable isotope associations in a no‐take marine reserve. Journal of Animal Ecology, 1365-2656.14014. https://doi.org/10.1111/1365-2656.14014
+
+
+Pershing, A. J., Alexander, M. A., Brady, D. C., Brickman, D., Curchitser, E. N., Diamond, A. W., McClenachan, L., Mills, K. E., Nichols, O. C., Pendleton, D. E., Record, N. R., Scott, J. D., Staudinger, M. D., & Wang, Y. (2021). Climate impacts on the Gulf of Maine ecosystem. Elementa: Science of the Anthropocene, 9(1), 00076. https://doi.org/10.1525/elementa.2020.00076
+
+
+Righton, D. A., Andersen, K. H., Neat, F., Thorsteinsson, V., Steingrund, P., Svedäng, H., Michalsen, K., Hinrichsen, H.-H., Bendall, V., Neuenfeldt, S., Wright, P., Jonsson, P., Huse, G., Kooij, J. van der, Mosegaard, H., Hüssy, K., & Metcalfe, J. (2010). Thermal niche of Atlantic cod Gadus morhua: Limits, tolerance and optima. Marine Ecology Progress Series, 420, 1–13. https://doi.org/10.3354/meps08889
+
+
+Willis, T.V., Wilson K.A., Johnson B.J. 2017. Diets and Stable Isotope Derived Food Web Structure of Fishes from the Inshore Gulf of Maine. Estuaries and Coasts 40(3): 889-904.
+
+
+Willis, T. V., Wilson, K. A., Alexander, K. E., & Leavenworth, W. B. (2013). Tracking cod diet preference over a century in the northern Gulf of Maine: Historic data and modern analysis. Marine Ecology Progress Series, 474, 263–276. https://doi.org/10.3354/meps10068
+
+
+
+
+
+
+
